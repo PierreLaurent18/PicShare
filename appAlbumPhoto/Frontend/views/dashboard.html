@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PicShare - Mon Espace</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <header class="entete-principale">
+        <div class="container navigation-flex">
+            <a href="../../index.html" class="logo">📸 PicShare</a>
+            <nav class="navigation-principale" aria-label="Navigation membre">
+                <ul>
+                    <li><span id="souhait-utilisateur" style="font-weight: 600;">Bonjour !</span></li>
+                    <li><button id="bouton-deconnexion" class="bouton-secondaire">Déconnexion</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+
+        <!-- Barre de recherche -->
+        <section style="margin-bottom: 2rem;">
+            <form id="form-recherche" style="display:flex;gap:0.5rem;max-width:500px;">
+                <input type="text" id="input-recherche" placeholder="Rechercher un album ou une photo..."
+                    style="flex:1;padding:0.75rem 1rem;border:1px solid #cbd5e1;border-radius:var(--arrondi-sm);font-size:0.95rem;">
+                <button type="submit" class="bouton-principal" style="padding:0.75rem 1.25rem;">🔍 Chercher</button>
+                <button type="button" id="btn-effacer-recherche" class="bouton-secondaire" style="display:none;padding:0.75rem 1rem;">✕</button>
+            </form>
+        </section>
+
+        <!-- Résultats de recherche -->
+        <section id="section-resultats" style="display:none;margin-bottom:2rem;">
+            <h3 id="titre-resultats" style="margin-bottom:1rem;color:#1e293b;"></h3>
+
+            <div id="resultats-albums" style="margin-bottom:1.5rem;"></div>
+            <div id="resultats-photos" style="margin-bottom:1.5rem;"></div>
+
+            <p id="message-aucun-resultat" style="display:none;color:var(--texte-attenue);text-align:center;padding:2rem 0;">
+                Aucun résultat trouvé.
+            </p>
+        </section>
+
+        <!-- Mes albums -->
+        <section id="section-albums">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2>Mes Albums</h2>
+                    <p style="color: var(--texte-attenue);">Gérez vos collections de photos privées et publiques.</p>
+                </div>
+                <button id="bouton-ouvrir-modal" class="bouton-principal">+ Créer un album</button>
+            </div>
+
+            <div id="grille-albums" class="grille-fonctionnalites">
+                <p id="message-vide" style="grid-column: 1/-1; text-align: center; color: var(--texte-attenue); padding: 3rem 0;">
+                    Vous n'avez pas encore créé d'album. Cliquez sur le bouton ci-dessus pour commencer !
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal création album -->
+    <div id="modal-album" class="boite-modale" style="display: none;">
+        <div class="contenu-modale">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3>Nouveau dossier d'album</h3>
+                <button id="bouton-fermer-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <form id="formulaire-album">
+                <div class="groupe-champ">
+                    <label for="titre-album">Titre de l'album</label>
+                    <input type="text" id="titre-album" name="title" placeholder="Ex: Vacances d'été 2026" required>
+                </div>
+                <div class="groupe-champ">
+                    <label for="description-album">Description (Optionnelle)</label>
+                    <input type="text" id="description-album" name="description" placeholder="Ex: Nos souvenirs à la plage">
+                </div>
+                <div class="groupe-champ">
+                    <label for="visibilite-album">Visibilité</label>
+                    <select id="visibilite-album" name="visibility" style="padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: var(--arrondi-sm);">
+                        <option value="private">Privé (Moi uniquement)</option>
+                        <option value="public">Public (Visible par tout le monde)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" id="bouton-annuler-modal" class="bouton-secondaire">Annuler</button>
+                    <button type="submit" class="bouton-principal">Créer l'album</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../assets/js/AlbumService.js"></script>
+    <script src="../assets/js/SearchService.js"></script>
+    <script src="../assets/js/AlbumController.js"></script>
+</body>
+</html>

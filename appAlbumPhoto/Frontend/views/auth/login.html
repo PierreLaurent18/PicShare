@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PicShare - Connexion</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+
+    <header class="entete-principale">
+        <div class="container navigation-flex">
+            <a href="../../index.html" class="logo">PicShare</a>
+            <nav class="navigation-principale" aria-label="Navigation secondaire">
+                <ul>
+                    <li><a href="../../index.html">Accueil</a></li>
+                    <li><a href="register.html" class="bouton-principal">Inscription</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="contexte-formulaire">
+        <div class="carte-formulaire">
+            <h2>Bon retour !</h2>
+            <p class="sous-titre">Connectez-vous pour accéder à vos albums photo.</p>
+
+            <form id="form-connexion" novalidate>
+                
+                <div class="groupe-champ">
+                    <label for="identifiant">Nom d'utilisateur ou E-mail</label>
+                    <input type="text" id="identifiant" name="identifier" placeholder="Votre pseudo ou e-mail" required>
+                    <span class="message-erreur" id="erreur-identifiant"></span>
+                </div>
+
+                <div class="groupe-champ">
+                    <label for="mot-de-passe">Mot de passe</label>
+                    <input type="password" id="mot-de-passe" name="password" placeholder="Votre mot de passe" required>
+                    <span class="message-erreur" id="erreur-mdp"></span>
+                </div>
+
+                <button type="submit" class="bouton-principal bouton-bloc">Se connecter</button>
+            </form>
+
+            <div class="pied-formulaire">
+                <p>Pas encore de compte ? <a href="register.html" class="lien-navigation">Créez-en un ici</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../assets/js/AuthService.js"></script>
+    <script src="../../assets/js/AuthController.js"></script>
+</body>
+</html>

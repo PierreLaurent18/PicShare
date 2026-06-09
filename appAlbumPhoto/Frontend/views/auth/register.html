@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PicShare - Inscription</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+
+    <header class="entete-principale">
+        <div class="container navigation-flex">
+            <a href="../../index.html" class="logo">PicShare</a>
+            <nav class="navigation-principale" aria-label="Navigation secondaire">
+                <ul>
+                    <li><a href="../../index.html">Accueil</a></li>
+                    <li><a href="login.html" class="bouton-secondaire">Connexion</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="contexte-formulaire">
+        <div class="carte-formulaire">
+            <h2>Créer un compte</h2>
+            <p class="sous-titre">Rejoignez PicShare pour organiser et partager vos photos.</p>
+
+            <form id="form-inscription" novalidate>
+                
+                <div class="groupe-champ">
+                    <label for="pseudo">Nom d'utilisateur</label>
+                    <input type="text" id="pseudo" name="username" placeholder="Ex: JeanDupont" required minlength="3">
+                    <span class="message-erreur" id="erreur-pseudo"></span>
+                </div>
+
+                <div class="groupe-champ">
+                    <label for="email">Adresse e-mail</label>
+                    <input type="email" id="email" name="email" placeholder="Ex: jean.dupont@exemple.com" required>
+                    <span class="message-erreur" id="erreur-email"></span>
+                </div>
+
+                <div class="groupe-champ">
+                    <label for="mot-de-passe">Mot de passe</label>
+                    <input type="password" id="mot-de-passe" name="password" placeholder="Au moins 8 caractères" required minlength="8">
+                    <span class="message-erreur" id="erreur-mdp"></span>
+                </div>
+
+                <div class="groupe-champ">
+                    <label for="confirmation-mot-de-passe">Confirmer le mot de passe</label>
+                    <input type="password" id="confirmation-mot-de-passe" name="password_confirm" placeholder="Répétez votre mot de passe" required>
+                    <span class="message-erreur" id="erreur-confirmation"></span>
+                </div>
+
+                <button type="submit" class="bouton-principal bouton-bloc">S'inscrire</button>
+            </form>
+
+            <div class="pied-formulaire">
+                <p>Déjà membre ? <a href="login.html" class="lien-navigation">Connectez-vous ici</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../assets/js/AuthService.js"></script>
+    <script src="../../assets/js/AuthController.js"></script>
+
+</body>
+</html>

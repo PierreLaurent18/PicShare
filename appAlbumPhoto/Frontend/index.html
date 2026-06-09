@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PicShare - Gestionnaire d'Albums Photo en Ligne</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <header class="entete-principale">
+        <div class="container navigation-flex">
+            <a href="index.html" class="logo">PicShare</a>
+            <nav class="navigation-principale" aria-label="Navigation principale">
+                <ul>
+                    <li><a href="index.html" class="active">Accueil</a></li>
+                    <li class="visiteur-uniquement"><a href="views/auth/login.html" class="bouton-secondaire">Connexion</a></li>
+                    <li class="visiteur-uniquement"><a href="views/auth/register.html" class="bouton-principal">Inscription</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="section-presentation">
+            <div class="container grille-presentation">
+                <div class="texte-presentation">
+                    <h1>Organisez, sécurisez et partagez vos plus beaux souvenirs.</h1>
+                    <p>PicShare vous permet de créer des albums photo en ligne, de les étiqueter pour les retrouver facilement, et de gérer précisément qui peut les voir, les commenter ou les enrichir.</p>
+                    <div class="actions-presentation">
+                        <a href="views/auth/register.html" class="bouton-principal bouton-large">Créer mon premier album</a>
+                        <a href="#fonctionnalites" class="lien-navigation">Découvrir les fonctionnalités ↓</a>
+                    </div>
+                </div>
+                <div class="galerie-vitrine">
+                    <div class="mosaique-aperçu">
+                        <div class="carte-photo photo-gauche">🏔️</div>
+                        <div class="carte-photo photo-centre">🌊</div>
+                        <div class="carte-photo photo-droite">⛺</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="fonctionnalites" class="section-fonctionnalites">
+            <div class="container">
+                <h2 class="titre-section">Pourquoi choisir PicShare ?</h2>
+                
+                <div class="grille-fonctionnalites">
+                    <div class="carte-fonctionnalite">
+                        <div class="icone-fonctionnalite"></div>
+                        <h3>Organisation Intelligente</h3>
+                        <p>Triez vos photos par albums, ajoutez des descriptions et des étiquettes (tags) pour effectuer des recherches instantanées.</p>
+                    </div>
+
+                    <div class="carte-fonctionnalite">
+                        <div class="icone-fonctionnalite"></div>
+                        <h3>Droits d'Accès Visés</h3>
+                        <p>Gardez vos albums privés, rendez-les publics, ou partagez-les exclusivement avec un groupe d'amis ou votre famille.</p>
+                    </div>
+
+                    <div class="carte-fonctionnalite">
+                        <div class="icone-fonctionnalite"></div>
+                        <h3>Espace Collaboratif</h3>
+                        <p>Autorisez vos proches à commenter vos clichés ou invitez-les à ajouter leurs propres photos dans vos albums partagés.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="pied-de-page">
+        <div class="container contenu-footer">
+            <p>&copy; 2026 PicShare - Projet de Soutenance. Réalisé en architecture MVC.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

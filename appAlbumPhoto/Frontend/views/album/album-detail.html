@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PicShare - Contenu de l'album</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+
+    <header class="entete-principale">
+        <div class="container navigation-flex">
+            <a href="../../index.html" class="logo">📸 PicShare</a>
+            <nav class="navigation-principale" aria-label="Navigation secondaire">
+                <ul>
+                    <li><a href="../dashboard.html" class="bouton-secondaire">← Retour aux albums</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+        
+        <section style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 id="titre-album-detail">Chargement de l'album...</h2>
+                <p id="description-album-detail" style="color: var(--texte-attenue);">Veuillez patienter pendant la récupération des données.</p>
+            </div>
+            <button id="bouton-ouvrir-modal-photo" class="bouton-principal">+ Ajouter une photo</button>
+        </section>
+
+        <section id="grille-photos" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;">
+            <p id="message-photos-vide" style="grid-column: 1/-1; text-align: center; color: var(--texte-attenue); padding: 3rem 0;">
+                Cet album ne contient aucune photo pour le moment.
+            </p>
+        </section>
+
+    </main>
+
+    <div id="modal-photo" class="boite-modale" style="display: none;">
+        <div class="contenu-modale">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3>Ajouter une nouvelle photo</h3>
+                <button id="bouton-fermer-modal-photo" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            
+            <form id="formulaire-photo" enctype="multipart/form-data">
+                <input type="hidden" id="photo-album-id" name="album_id">
+
+                <div class="groupe-champ">
+                    <label for="titre-photo">Titre / Légende</label>
+                    <input type="text" id="titre-photo" name="title" placeholder="Ex: Coucher de soleil" required>
+                </div>
+
+                <div class="groupe-champ">
+                    <label for="fichier-image">Sélectionner une image</label>
+                    <input type="file" id="fichier-image" name="image" accept="image/*" required style="padding: 0.5rem 0;">
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" id="bouton-annuler-modal-photo" class="bouton-secondaire">Annuler</button>
+                    <button type="submit" class="bouton-principal">Téléverser</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;gap:0;">
+        <div style="display:flex;max-width:1100px;width:95vw;max-height:90vh;background:#fff;border-radius:12px;overflow:hidden;position:relative;">
+            <!-- Image -->
+            <div style="flex:1.2;background:#0f172a;display:flex;align-items:center;justify-content:center;min-height:400px;">
+                <img id="lightbox-image" src="" alt="" style="max-width:100%;max-height:85vh;object-fit:contain;">
+            </div>
+            <!-- Panneau commentaires -->
+            <div style="width:320px;display:flex;flex-direction:column;border-left:1px solid #e2e8f0;">
+                <!-- En-tête -->
+                <div style="padding:1rem 1.25rem;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+                    <h3 id="lightbox-titre" style="font-size:1rem;font-weight:600;margin:0;color:#1e293b;"></h3>
+                    <button id="lightbox-fermer" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#64748b;">&times;</button>
+                </div>
+                <!-- Liste commentaires -->
+                <div id="lightbox-commentaires" style="flex:1;overflow-y:auto;padding:1rem 1.25rem;"></div>
+                <!-- Formulaire commentaire -->
+                <div style="padding:1rem 1.25rem;border-top:1px solid #e2e8f0;">
+                    <form id="form-lightbox-commentaire" style="display:flex;flex-direction:column;gap:0.5rem;">
+                        <input type="hidden" id="lightbox-photo-id">
+                        <textarea name="content" placeholder="Écrire un commentaire..." rows="2" required
+                            style="padding:0.6rem;border:1px solid #cbd5e1;border-radius:8px;font-size:0.875rem;resize:none;font-family:inherit;"></textarea>
+                        <button type="submit" class="bouton-principal" style="align-self:flex-end;padding:0.4rem 1rem;font-size:0.875rem;">Publier</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/PhotoService.js"></script>
+    <script src="../../assets/js/CommentService.js"></script>
+    <script src="../../assets/js/PhotoController.js"></script>
+    <script>
+        // Formulaire commentaire dans le lightbox
+        document.getElementById('form-lightbox-commentaire').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) return;
+            const photoId = document.getElementById('lightbox-photo-id').value;
+            const content = e.target.querySelector('textarea').value;
+            const formData = new FormData();
+            formData.append('photo_id', photoId);
+            formData.append('user_id', user.id);
+            formData.append('content', content);
+            const svc = new CommentService();
+            const res = await svc.ajouterCommentaire(formData);
+            if (res.succes) {
+                e.target.querySelector('textarea').value = '';
+                photoController.chargerCommentaires(photoId);
+            }
+        });
+    </script>
+</body>
+</html>
