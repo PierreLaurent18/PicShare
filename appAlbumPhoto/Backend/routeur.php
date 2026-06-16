@@ -39,11 +39,20 @@ switch ($route) {
     case 'albums/create':
         $albumController->creer();
         break;
+    case 'albums/update':
+        $albumController->modifier();
+        break;
     case 'photos':
         $photoController->lister();
         break;
     case 'photos/upload':
         $photoController->ajouter();
+        break;
+    case 'photos/delete':
+        $photoController->supprimer();
+        break;
+    case 'photos/update':
+        $photoController->modifier();
         break;
     case 'comments':
         $commentController->lister();
@@ -65,6 +74,9 @@ switch ($route) {
         break;
     case 'share/revoquer':
         $shareController->revoquer();
+        break;
+    case 'users/search':
+        $shareController->chercherUtilisateurs();
         break;
     default:
         http_response_code(404);

@@ -15,4 +15,20 @@ class PhotoService {
         });
         return await reponse.json();
     }
+
+    async supprimerPhoto(donneesFormulaire) {
+        const reponse = await fetch(`${this.apiUrl}?route=photos/delete`, {
+            method: 'POST',
+            body: donneesFormulaire
+        });
+        return await reponse.json();
+    }
+
+    async modifierPhoto(donneesFormulaire) {
+        const reponse = await fetch(`${this.apiUrl}?route=photos/update`, {
+            method: 'POST',
+            body: donneesFormulaire
+        });
+        return await reponse.json();
+    }
 }

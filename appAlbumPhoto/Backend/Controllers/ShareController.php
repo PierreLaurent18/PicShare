@@ -100,6 +100,26 @@ class ShareController {
         echo json_encode(["succes" => true, "albums" => $albums]);
     }
 
+    public function chercherUtilisateurs() {
+        $q       = isset($_GET['q'])       ? trim($_GET['q'])         : '';
+        $exclure = isset($_GET['exclure']) ? intval($_GET['exclure']) : 0;
+
+        if (strlen($q) < 1) {
+            echo json_encode(["succes" => true, "utilisateurs" => []]);
+            return;
+        }
+
+        $stmt = $this->bdd->prepare(
+            "SELECT id, username FROM users
+             WHERE username LIKE :motif AND id != :exclure
+             ORDER BY username ASC
+             LIMIT 8"
+        );
+        $stmt->execute(['motif' => $q . '%', 'exclure' => $exclure]);
+
+        echo json_encode(["succes" => true, "utilisateurs" => $stmt->fetchAll()]);
+    }
+
     public function revoquer() {
         $albumId = isset($_POST['album_id']) ? intval($_POST['album_id']) : 0;
         $userId  = isset($_POST['user_id'])  ? intval($_POST['user_id'])  : 0;

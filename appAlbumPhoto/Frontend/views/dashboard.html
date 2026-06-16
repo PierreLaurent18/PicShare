@@ -25,7 +25,7 @@
         <!-- Barre de recherche -->
         <section style="margin-bottom: 2rem;">
             <form id="form-recherche" style="display:flex;gap:0.5rem;max-width:500px;">
-                <input type="text" id="input-recherche" placeholder="Rechercher un album ou une photo..."
+                <input type="text" id="input-recherche" placeholder="Rechercher un album, une photo ou une étiquette..."
                     style="flex:1;padding:0.75rem 1rem;border:1px solid #cbd5e1;border-radius:var(--arrondi-sm);font-size:0.95rem;">
                 <button type="submit" class="bouton-principal" style="padding:0.75rem 1.25rem;">🔍 Chercher</button>
                 <button type="button" id="btn-effacer-recherche" class="bouton-secondaire" style="display:none;padding:0.75rem 1rem;">✕</button>
@@ -89,7 +89,7 @@
     <div id="modal-album" class="boite-modale" style="display: none;">
         <div class="contenu-modale">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3>Nouveau dossier d'album</h3>
+                <h3 id="titre-modal-album">Nouveau dossier d'album</h3>
                 <button id="bouton-fermer-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
             </div>
             <form id="formulaire-album">
@@ -110,15 +110,15 @@
                 </div>
                 <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
                     <button type="button" id="bouton-annuler-modal" class="bouton-secondaire">Annuler</button>
-                    <button type="submit" class="bouton-principal">Créer l'album</button>
+                    <button type="submit" id="bouton-soumettre-album" class="bouton-principal">Créer l'album</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="../assets/js/AlbumService.js"></script>
-    <script src="../assets/js/SearchService.js"></script>
-    <script src="../assets/js/ShareService.js"></script>
-    <script src="../assets/js/AlbumController.js"></script>
+    <script src="../assets/js/AlbumService.js?v=3"></script>
+    <script src="../assets/js/SearchService.js?v=3"></script>
+    <script src="../assets/js/ShareService.js?v=3"></script>
+    <script src="../assets/js/AlbumController.js?v=3"></script>
 </body>
 </html>

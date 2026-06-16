@@ -30,14 +30,23 @@ class SearchController {
         $albums = $stmtAlbums->fetchAll();
 
         $stmtPhotos = $this->bdd->prepare(
-            "SELECT photos.id, photos.filename, photos.description, photos.album_id, albums.title AS album_title
+            "SELECT photos.id, photos.filename, photos.description, photos.album_id, albums.title AS album_title,
+                    GROUP_CONCAT(DISTINCT tags.name ORDER BY tags.name SEPARATOR ',') AS etiquettes
              FROM photos
              JOIN albums ON photos.album_id = albums.id
+             LEFT JOIN photo_tags ON photos.id = photo_tags.photo_id
+             LEFT JOIN tags ON photo_tags.tag_id = tags.id
              WHERE albums.user_id = :user_id
-             AND photos.description LIKE :motif
+             AND photos.id IN (
+                 SELECT p.id FROM photos p
+                 LEFT JOIN photo_tags pt ON p.id = pt.photo_id
+                 LEFT JOIN tags t ON pt.tag_id = t.id
+                 WHERE p.description LIKE :motif OR t.name LIKE :motif2
+             )
+             GROUP BY photos.id
              ORDER BY photos.uploaded_at DESC"
         );
-        $stmtPhotos->execute(['user_id' => $userId, 'motif' => $motif]);
+        $stmtPhotos->execute(['user_id' => $userId, 'motif' => $motif, 'motif2' => $motif]);
         $photos = $stmtPhotos->fetchAll();
 
         echo json_encode([

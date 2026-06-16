@@ -32,6 +32,30 @@ class AlbumController {
         }
     }
 
+    public function modifier() {
+        $albumId     = isset($_POST['album_id'])    ? intval($_POST['album_id'])  : 0;
+        $title       = isset($_POST['title'])       ? trim($_POST['title'])       : '';
+        $description = isset($_POST['description']) ? trim($_POST['description']) : null;
+        $visibility  = isset($_POST['visibility'])  ? $_POST['visibility']         : 'private';
+        $userId      = isset($_POST['user_id'])     ? intval($_POST['user_id'])    : 0;
+
+        if (!$albumId || empty($title) || !$userId) {
+            http_response_code(400);
+            echo json_encode(["succes" => false, "message" => "Données manquantes."]);
+            return;
+        }
+
+        $succes = $this->albumModel->modifier($albumId, $title, $description, $visibility, $userId);
+
+        if ($succes) {
+            Db::logAction("Album $albumId modifié par l'utilisateur $userId");
+            echo json_encode(["succes" => true, "message" => "Album modifié !"]);
+        } else {
+            http_response_code(403);
+            echo json_encode(["succes" => false, "message" => "Modification non autorisée."]);
+        }
+    }
+
     public function lister() {
         $userId = isset($_GET['user_id']) ? intval($_GET['user_id']) : 0;
 

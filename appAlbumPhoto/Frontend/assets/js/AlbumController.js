@@ -25,13 +25,14 @@ class AlbumController {
                 window.location.href = 'http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/auth/login.html';
             });
 
+            this.albumEnEdition = null;
             const modal = document.getElementById('modal-album');
-            document.getElementById('bouton-ouvrir-modal').addEventListener('click', () => modal.style.display = 'flex');
+            document.getElementById('bouton-ouvrir-modal').addEventListener('click', () => this.ouvrirModalCreation());
             document.getElementById('bouton-fermer-modal').addEventListener('click', () => modal.style.display = 'none');
             document.getElementById('bouton-annuler-modal').addEventListener('click', () => modal.style.display = 'none');
 
             const formAlbum = document.getElementById('formulaire-album');
-            if (formAlbum) formAlbum.addEventListener('submit', (e) => this.gererCreationAlbum(e));
+            if (formAlbum) formAlbum.addEventListener('submit', (e) => this.gererSoumissionAlbum(e));
 
             this.chargerAlbumsPartages();
             this.chargerAlbumsPublics();
@@ -98,11 +99,19 @@ class AlbumController {
                 const urlImage = `http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Backend/uploads/${photo.filename}`;
                 const carte = document.createElement('div');
                 carte.style.cssText = 'border-radius:8px;overflow:hidden;background:#f1f5f9;cursor:pointer;';
+                const tagsHtml = photo.etiquettes
+                    ? '<div style="margin-top:0.35rem;display:flex;flex-wrap:wrap;gap:0.25rem;">' +
+                        photo.etiquettes.split(',').map(t =>
+                            `<span style="font-size:0.7rem;background:#eff6ff;color:#3b82f6;padding:0.1rem 0.45rem;border-radius:99px;">#${t}</span>`
+                        ).join('') +
+                      '</div>'
+                    : '';
                 carte.innerHTML = `
                     <img src="${urlImage}" alt="${photo.description || ''}" style="width:100%;height:130px;object-fit:cover;display:block;">
                     <div style="padding:0.5rem;font-size:0.8rem;">
                         <p style="font-weight:600;margin:0;">${photo.description || 'Sans titre'}</p>
                         <p style="color:var(--texte-attenue);margin:0.2rem 0 0;">dans <b>${photo.album_title}</b></p>
+                        ${tagsHtml}
                     </div>
                 `;
                 carte.addEventListener('click', () => {
@@ -191,26 +200,54 @@ class AlbumController {
                             Statut : <b>${album.visibility}</b>
                         </p>
                         <a href="http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/album/album-detail.html?id=${album.id}" class="bouton-principal" style="display:block; text-align:center;">Ouvrir →</a>
+                        <button class="bouton-secondaire btn-modifier-album" style="display:block;width:100%;margin-top:0.5rem;">✏️ Modifier</button>
                     `;
+                    carte.querySelector('.btn-modifier-album').addEventListener('click', () => this.ouvrirModalEdition(album));
                     grille.appendChild(carte);
                 });
             }
         } catch (e) { console.error(e); }
     }
 
-    async gererCreationAlbum(e) {
+    ouvrirModalCreation() {
+        this.albumEnEdition = null;
+        document.getElementById('formulaire-album').reset();
+        document.getElementById('titre-modal-album').textContent = "Nouveau dossier d'album";
+        document.getElementById('bouton-soumettre-album').textContent = "Créer l'album";
+        document.getElementById('modal-album').style.display = 'flex';
+    }
+
+    ouvrirModalEdition(album) {
+        this.albumEnEdition = album.id;
+        document.getElementById('titre-album').value       = album.title;
+        document.getElementById('description-album').value = album.description || '';
+        document.getElementById('visibilite-album').value  = album.visibility;
+        document.getElementById('titre-modal-album').textContent = "Modifier l'album";
+        document.getElementById('bouton-soumettre-album').textContent = "Enregistrer";
+        document.getElementById('modal-album').style.display = 'flex';
+    }
+
+    async gererSoumissionAlbum(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
         formData.append('user_id', this.user.id);
 
         try {
-            const resultat = await this.albumService.creerAlbum(formData);
+            let resultat;
+            if (this.albumEnEdition) {
+                formData.append('album_id', this.albumEnEdition);
+                resultat = await this.albumService.modifierAlbum(formData);
+            } else {
+                resultat = await this.albumService.creerAlbum(formData);
+            }
+
             if (resultat.succes) {
                 document.getElementById('modal-album').style.display = 'none';
                 e.target.reset();
+                this.albumEnEdition = null;
                 this.chargerAlbumsPrives();
             } else {
-                alert(resultat.message || "Erreur lors de la création.");
+                alert(resultat.message || "Une erreur est survenue.");
             }
         } catch (err) { console.error(err); }
     }

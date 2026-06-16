@@ -16,6 +16,14 @@ class AlbumService {
         return await reponse.json();
     }
 
+    async modifierAlbum(donneesFormulaire) {
+        const reponse = await fetch(`${this.apiUrl}?route=albums/update`, {
+            method: 'POST',
+            body: donneesFormulaire
+        });
+        return await reponse.json();
+    }
+
     async chargerDetailsAlbum(albumId) {
         const reponse = await fetch(`${this.apiUrl}?route=albums/details&id=${albumId}`);
         return await reponse.json();

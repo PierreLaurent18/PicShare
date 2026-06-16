@@ -27,6 +27,25 @@ class Album {
         return $stmt->fetchAll();
     }
 
+    public function modifier($albumId, $titre, $description, $visibilite, $userId) {
+        $check = $this->bdd->prepare("SELECT id FROM albums WHERE id = :id AND user_id = :user_id");
+        $check->execute(['id' => $albumId, 'user_id' => $userId]);
+        if (!$check->fetch()) {
+            return false;
+        }
+
+        $query = "UPDATE albums
+                  SET title = :title, description = :description, visibility = :visibility
+                  WHERE id = :id";
+        $this->bdd->prepare($query)->execute([
+            'title'       => $titre,
+            'description' => $description,
+            'visibility'  => $visibilite,
+            'id'          => $albumId
+        ]);
+        return true;
+    }
+
     public function supprimer($albumId, $userId) {
         $query = "DELETE FROM albums WHERE id = :id AND user_id = :user_id";
         $stmt = $this->bdd->prepare($query);

@@ -15,8 +15,10 @@ class PhotoController {
             return;
         }
 
-        $albumId = intval($_POST['album_id']);
-        $titre = !empty($_POST['title']) ? $_POST['title'] : "";
+        $albumId    = intval($_POST['album_id']);
+        $titre      = !empty($_POST['title'])    ? $_POST['title']    : "";
+        $datePrise  = !empty($_POST['taken_at']) ? $_POST['taken_at'] : null;
+        $etiquettes = !empty($_POST['tags'])     ? explode(',', $_POST['tags']) : [];
         $fichier = $_FILES['image'];
 
         if ($fichier['error'] !== UPLOAD_ERR_OK) {
@@ -53,9 +55,12 @@ class PhotoController {
         $dossierDestination = __DIR__ . '/../uploads/' . $nouveauNomFichier;
 
         if (move_uploaded_file($fichier['tmp_name'], $dossierDestination)) {
-            $succes = $this->photoModel->ajouter($nouveauNomFichier, $titre, $albumId);
+            $photoId = $this->photoModel->ajouter($nouveauNomFichier, $titre, $albumId, $datePrise);
 
-            if ($succes) {
+            if ($photoId) {
+                if (!empty($etiquettes)) {
+                    $this->photoModel->attacherEtiquettes($photoId, $etiquettes);
+                }
                 Db::logAction("Nouvelle photo ajoutée à l'album ID " . $albumId);
                 http_response_code(201);
                 echo json_encode(["succes" => true, "message" => "Photo ajoutée avec succès !"]);
@@ -66,6 +71,57 @@ class PhotoController {
         } else {
             http_response_code(500);
             echo json_encode(["message" => "Impossible de sauvegarder l'image sur le serveur."]);
+        }
+    }
+
+    public function supprimer() {
+        $photoId = isset($_POST['photo_id']) ? intval($_POST['photo_id']) : 0;
+        $userId  = isset($_POST['user_id'])  ? intval($_POST['user_id'])  : 0;
+
+        if (!$photoId || !$userId) {
+            http_response_code(400);
+            echo json_encode(["succes" => false, "message" => "Données manquantes."]);
+            return;
+        }
+
+        $filename = $this->photoModel->supprimer($photoId, $userId);
+
+        if ($filename === false) {
+            http_response_code(403);
+            echo json_encode(["succes" => false, "message" => "Suppression non autorisée."]);
+            return;
+        }
+
+        $chemin = __DIR__ . '/../uploads/' . $filename;
+        if (is_file($chemin)) {
+            @unlink($chemin);
+        }
+
+        Db::logAction("Photo $photoId supprimée par l'utilisateur $userId");
+        echo json_encode(["succes" => true, "message" => "Photo supprimée."]);
+    }
+
+    public function modifier() {
+        $photoId    = isset($_POST['photo_id'])  ? intval($_POST['photo_id']) : 0;
+        $userId     = isset($_POST['user_id'])   ? intval($_POST['user_id'])  : 0;
+        $titre      = isset($_POST['title'])     ? trim($_POST['title'])      : '';
+        $datePrise  = !empty($_POST['taken_at']) ? $_POST['taken_at']         : null;
+        $etiquettes = !empty($_POST['tags'])     ? explode(',', $_POST['tags']) : [];
+
+        if (!$photoId || !$userId) {
+            http_response_code(400);
+            echo json_encode(["succes" => false, "message" => "Données manquantes."]);
+            return;
+        }
+
+        $succes = $this->photoModel->modifier($photoId, $titre, $datePrise, $etiquettes, $userId);
+
+        if ($succes) {
+            Db::logAction("Photo $photoId modifiée par l'utilisateur $userId");
+            echo json_encode(["succes" => true, "message" => "Photo modifiée !"]);
+        } else {
+            http_response_code(403);
+            echo json_encode(["succes" => false, "message" => "Modification non autorisée."]);
         }
     }
 
