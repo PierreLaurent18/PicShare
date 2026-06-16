@@ -19,7 +19,6 @@ class SearchController {
 
         $motif = '%' . $q . '%';
 
-        // Recherche dans les albums de l'utilisateur
         $stmtAlbums = $this->bdd->prepare(
             "SELECT id, title, description, visibility, created_at
              FROM albums
@@ -30,7 +29,6 @@ class SearchController {
         $stmtAlbums->execute(['user_id' => $userId, 'motif' => $motif, 'motif2' => $motif]);
         $albums = $stmtAlbums->fetchAll();
 
-        // Recherche dans les photos des albums de l'utilisateur
         $stmtPhotos = $this->bdd->prepare(
             "SELECT photos.id, photos.filename, photos.description, photos.album_id, albums.title AS album_title
              FROM photos

@@ -20,21 +20,18 @@ class AuthController {
     }
 
     async gererInscription(e) {
-        e.preventDefault(); // Empêche le rechargement de la page
+        e.preventDefault();
         
-        // 1. Récupération des éléments du formulaire HTML
         const pseudoInput = document.getElementById('pseudo');
         const emailInput = document.getElementById('email');
         const mdpInput = document.getElementById('mot-de-passe');
         const confirmInput = document.getElementById('confirmation-mot-de-passe');
 
-        // Elements d'affichage des erreurs
         const errorPseudo = document.getElementById('erreur-pseudo');
         const errorEmail = document.getElementById('erreur-email');
         const errorMdp = document.getElementById('erreur-mdp');
         const errorConfirm = document.getElementById('erreur-confirmation');
 
-        // Réinitialisation des messages d'erreur à l'écran
         if(errorPseudo) errorPseudo.textContent = "";
         if(errorEmail) errorEmail.textContent = "";
         if(errorMdp) errorMdp.textContent = "";
@@ -42,7 +39,6 @@ class AuthController {
 
         let formulaireValide = true;
 
-        // 2. Vérifications de sécurité côté Front (Validation)
         if (pseudoInput.value.trim().length < 3) {
             if(errorPseudo) errorPseudo.textContent = "Le nom d'utilisateur doit contenir au moins 3 caractères.";
             formulaireValide = false;
@@ -63,12 +59,10 @@ class AuthController {
             formulaireValide = false;
         }
 
-        // Si une règle JS n'est pas respectée, on stoppe l'envoi ici
         if (!formulaireValide) {
             return;
         }
 
-        // 3. Envoi des données si tout est OK
         const formData = new FormData(e.target);
 
         try {

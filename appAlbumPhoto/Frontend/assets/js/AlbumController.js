@@ -1,6 +1,7 @@
 class AlbumController {
     constructor() {
         this.albumService = new AlbumService();
+        this.shareService = new ShareService();
         this.init();
     }
 
@@ -24,17 +25,17 @@ class AlbumController {
                 window.location.href = 'http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/auth/login.html';
             });
 
-            // Modal
             const modal = document.getElementById('modal-album');
             document.getElementById('bouton-ouvrir-modal').addEventListener('click', () => modal.style.display = 'flex');
             document.getElementById('bouton-fermer-modal').addEventListener('click', () => modal.style.display = 'none');
             document.getElementById('bouton-annuler-modal').addEventListener('click', () => modal.style.display = 'none');
 
-            // Formulaire album
             const formAlbum = document.getElementById('formulaire-album');
             if (formAlbum) formAlbum.addEventListener('submit', (e) => this.gererCreationAlbum(e));
 
-            // Recherche
+            this.chargerAlbumsPartages();
+            this.chargerAlbumsPublics();
+
             this.searchService = new SearchService();
             const formRecherche = document.getElementById('form-recherche');
             const btnEffacer    = document.getElementById('btn-effacer-recherche');
@@ -70,7 +71,6 @@ class AlbumController {
         const aucunResultat = resultat.albums.length === 0 && resultat.photos.length === 0;
         msgAucun.style.display = aucunResultat ? 'block' : 'none';
 
-        // Albums trouvés
         if (resultat.albums.length > 0) {
             divAlbums.innerHTML = `<h4 style="margin-bottom:0.75rem;color:#475569;">📁 Albums (${resultat.albums.length})</h4>`;
             const grille = document.createElement('div');
@@ -90,7 +90,6 @@ class AlbumController {
             divAlbums.appendChild(grille);
         }
 
-        // Photos trouvées
         if (resultat.photos.length > 0) {
             divPhotos.innerHTML = `<h4 style="margin-bottom:0.75rem;color:#475569;">🖼️ Photos (${resultat.photos.length})</h4>`;
             const grille = document.createElement('div');
@@ -113,6 +112,57 @@ class AlbumController {
             });
             divPhotos.appendChild(grille);
         }
+    }
+
+    async chargerAlbumsPartages() {
+        try {
+            const res = await this.shareService.albumsPartagesAvecMoi(this.user.id);
+            const grille = document.getElementById('grille-partages');
+            if (!grille) return;
+            if (res.succes && res.albums.length > 0) {
+                document.getElementById('message-partages-vide').style.display = 'none';
+                grille.innerHTML = '';
+                res.albums.forEach(album => {
+                    const carte = document.createElement('div');
+                    carte.className = 'carte-fonctionnalite';
+                    const badge = { view: '👁️ Lecture', comment: '💬 Commentaires', contribute: '✏️ Contribution' }[album.right_level] || album.right_level;
+                    carte.innerHTML = `
+                        <div style="font-size:2.5rem;margin-bottom:0.75rem;">📁</div>
+                        <h3>${album.title}</h3>
+                        <p style="font-size:0.8rem;color:var(--texte-attenue);margin-bottom:0.5rem;">Par <b>${album.owner_username}</b></p>
+                        <span style="font-size:0.75rem;background:#eff6ff;color:#3b82f6;padding:0.2rem 0.6rem;border-radius:99px;">${badge}</span>
+                        <a href="http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/album/album-detail.html?id=${album.id}"
+                           class="bouton-principal" style="display:block;text-align:center;margin-top:1rem;">Ouvrir →</a>
+                    `;
+                    grille.appendChild(carte);
+                });
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    async chargerAlbumsPublics() {
+        try {
+            const res = await this.shareService.albumsPublics(this.user.id);
+            const grille = document.getElementById('grille-publics');
+            if (!grille) return;
+            if (res.succes && res.albums.length > 0) {
+                document.getElementById('message-publics-vide').style.display = 'none';
+                grille.innerHTML = '';
+                res.albums.forEach(album => {
+                    const carte = document.createElement('div');
+                    carte.className = 'carte-fonctionnalite';
+                    carte.innerHTML = `
+                        <div style="font-size:2.5rem;margin-bottom:0.75rem;">🌍</div>
+                        <h3>${album.title}</h3>
+                        <p style="font-size:0.85rem;color:var(--texte-attenue);margin-bottom:1rem;">${album.description || ''}</p>
+                        <p style="font-size:0.8rem;color:var(--texte-attenue);margin-bottom:1rem;">Par <b>${album.owner_username}</b></p>
+                        <a href="http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/album/album-detail.html?id=${album.id}"
+                           class="bouton-secondaire" style="display:block;text-align:center;">Voir →</a>
+                    `;
+                    grille.appendChild(carte);
+                });
+            }
+        } catch(e) { console.error(e); }
     }
 
     effacerRecherche() {

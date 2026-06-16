@@ -61,6 +61,28 @@
             </div>
         </section>
 
+        <!-- Albums partagés avec moi -->
+        <section id="section-partages" style="margin-top:3rem;">
+            <h2 style="margin-bottom:0.5rem;">Partagés avec moi</h2>
+            <p style="color:var(--texte-attenue);margin-bottom:1.5rem;">Albums que d'autres utilisateurs ont partagés avec vous.</p>
+            <div id="grille-partages" class="grille-fonctionnalites">
+                <p id="message-partages-vide" style="grid-column:1/-1;text-align:center;color:var(--texte-attenue);padding:2rem 0;">
+                    Aucun album partagé avec vous pour le moment.
+                </p>
+            </div>
+        </section>
+
+        <!-- Albums publics -->
+        <section id="section-publics" style="margin-top:3rem;">
+            <h2 style="margin-bottom:0.5rem;">Albums publics</h2>
+            <p style="color:var(--texte-attenue);margin-bottom:1.5rem;">Albums publics des autres utilisateurs.</p>
+            <div id="grille-publics" class="grille-fonctionnalites">
+                <p id="message-publics-vide" style="grid-column:1/-1;text-align:center;color:var(--texte-attenue);padding:2rem 0;">
+                    Aucun album public disponible.
+                </p>
+            </div>
+        </section>
+
     </main>
 
     <!-- Modal création album -->
@@ -96,6 +118,7 @@
 
     <script src="../assets/js/AlbumService.js"></script>
     <script src="../assets/js/SearchService.js"></script>
+    <script src="../assets/js/ShareService.js"></script>
     <script src="../assets/js/AlbumController.js"></script>
 </body>
 </html>

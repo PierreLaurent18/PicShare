@@ -9,7 +9,6 @@ class PhotoController {
     }
 
     public function ajouter() {
-        // Vérification des champs obligatoires
         if (empty($_POST['album_id']) || empty($_FILES['image'])) {
             http_response_code(400);
             echo json_encode(["message" => "Données du formulaire incomplètes."]);
@@ -20,21 +19,18 @@ class PhotoController {
         $titre = !empty($_POST['title']) ? $_POST['title'] : "";
         $fichier = $_FILES['image'];
 
-        // 1. Sécurité : Vérifier s'il n'y a pas d'erreur d'upload
         if ($fichier['error'] !== UPLOAD_ERR_OK) {
             http_response_code(400);
             echo json_encode(["message" => "Erreur lors du transfert du fichier."]);
             return;
         }
 
-        // 2. Sécurité : Limiter la taille (Ex: 5 Mo max)
         if ($fichier['size'] > 5 * 1024 * 1024) {
             http_response_code(400);
             echo json_encode(["message" => "Le fichier est trop lourd (5 Mo maximum)."]);
             return;
         }
 
-        // 3. Sécurité : Vérifier l'extension (Uniquement des images)
         $extensionsAutorisees = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         $extensionFichier = strtolower(pathinfo($fichier['name'], PATHINFO_EXTENSION));
 
@@ -44,14 +40,19 @@ class PhotoController {
             return;
         }
 
-        // 4. Sécurité : Renommer le fichier pour éviter les doublons et nettoyer le nom
+        $infosImage = @getimagesize($fichier['tmp_name']);
+        $typesMimeAutorises = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if ($infosImage === false || !in_array($infosImage['mime'], $typesMimeAutorises)) {
+            http_response_code(400);
+            echo json_encode(["message" => "Le fichier n'est pas une image valide."]);
+            return;
+        }
+
         $nouveauNomFichier = uniqid('img_', true) . '.' . $extensionFichier;
 
-        // 5. Déplacement du fichier temporaire vers notre dossier final
         $dossierDestination = __DIR__ . '/../uploads/' . $nouveauNomFichier;
 
         if (move_uploaded_file($fichier['tmp_name'], $dossierDestination)) {
-            // Enregistrement en Base de données
             $succes = $this->photoModel->ajouter($nouveauNomFichier, $titre, $albumId);
 
             if ($succes) {

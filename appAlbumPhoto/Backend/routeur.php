@@ -15,6 +15,7 @@ require_once __DIR__ . '/Controllers/AlbumController.php';
 require_once __DIR__ . '/Controllers/PhotoController.php';
 require_once __DIR__ . '/Controllers/CommentController.php';
 require_once __DIR__ . '/Controllers/SearchController.php';
+require_once __DIR__ . '/Controllers/ShareController.php';
 
 $route = isset($_GET['route']) ? $_GET['route'] : '';
 
@@ -23,6 +24,7 @@ $albumController   = new AlbumController();
 $photoController   = new PhotoController();
 $commentController  = new CommentController();
 $searchController   = new SearchController();
+$shareController    = new ShareController();
 
 switch ($route) {
     case 'register':
@@ -51,6 +53,18 @@ switch ($route) {
         break;
     case 'search':
         $searchController->chercher();
+        break;
+    case 'share':
+        $shareController->partager();
+        break;
+    case 'share/partages':
+        $shareController->albumsPartagesAvecMoi();
+        break;
+    case 'share/publics':
+        $shareController->albumsPublics();
+        break;
+    case 'share/revoquer':
+        $shareController->revoquer();
         break;
     default:
         http_response_code(404);

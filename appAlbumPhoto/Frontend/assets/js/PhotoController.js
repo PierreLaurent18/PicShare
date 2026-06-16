@@ -1,7 +1,8 @@
 class PhotoController {
-    constructor(photoService, commentService) {
+    constructor(photoService, commentService, shareService) {
         this.photoService   = photoService;
         this.commentService = commentService;
+        this.shareService   = shareService;
         this.albumId = null;
         this.user    = null;
         this.init();
@@ -32,7 +33,12 @@ class PhotoController {
             document.getElementById('bouton-annuler-modal-photo').addEventListener('click', () => this.basculerModal(false));
             this.formulaire.addEventListener('submit', (e) => this.gererDepotPhoto(e));
 
-            // Lightbox
+            const modalPartage = document.getElementById('modal-partage');
+            document.getElementById('bouton-partager').addEventListener('click', () => modalPartage.style.display = 'flex');
+            document.getElementById('fermer-modal-partage').addEventListener('click', () => modalPartage.style.display = 'none');
+            document.getElementById('annuler-modal-partage').addEventListener('click', () => modalPartage.style.display = 'none');
+            document.getElementById('form-partage').addEventListener('submit', (e) => this.gererPartage(e));
+
             this.lightbox = document.getElementById('lightbox');
             document.getElementById('lightbox-fermer').addEventListener('click', () => this.fermerLightbox());
             this.lightbox.addEventListener('click', (e) => { if (e.target === this.lightbox) this.fermerLightbox(); });
@@ -106,6 +112,20 @@ class PhotoController {
         zone.scrollTop = zone.scrollHeight;
     }
 
+    async gererPartage(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        formData.append('album_id', this.albumId);
+        formData.append('owner_id', this.user.id);
+
+        const resultat = await this.shareService.partager(formData);
+        alert(resultat.message);
+        if (resultat.succes) {
+            document.getElementById('modal-partage').style.display = 'none';
+            e.target.reset();
+        }
+    }
+
     async gererDepotPhoto(evenement) {
         evenement.preventDefault();
         const formData = new FormData(this.formulaire);
@@ -122,4 +142,5 @@ class PhotoController {
 
 const photoService    = new PhotoService();
 const commentService  = new CommentService();
-const photoController = new PhotoController(photoService, commentService);
+const shareService    = new ShareService();
+const photoController = new PhotoController(photoService, commentService, shareService);
