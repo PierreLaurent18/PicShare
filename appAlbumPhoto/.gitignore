@@ -1,9 +1,6 @@
-# Variables d'environnement (ne jamais committer)
 .env
 
-# Uploads (photos des utilisateurs)
 Backend/uploads/*
 !Backend/uploads/.gitkeep
 
-# Logs
 Backend/error.log
