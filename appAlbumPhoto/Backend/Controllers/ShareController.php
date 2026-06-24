@@ -142,7 +142,7 @@ class ShareController {
 
         $stmt = $this->bdd->prepare(
             "SELECT share_links.album_id, share_links.right_level,
-                    albums.title, albums.description
+                    albums.title, albums.description, albums.user_id AS owner_id
              FROM share_links
              JOIN albums ON share_links.album_id = albums.id
              WHERE share_links.token = :token"

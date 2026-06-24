@@ -29,7 +29,9 @@ class PhotoController {
                 }
                 this.albumId = res.lien.album_id;
                 this.droitLien = res.lien.right_level;
-                this.modeVisiteur = true;
+                // Si l'utilisateur connecté est le propriétaire, il garde le contrôle total
+                const estProprietaire = this.user && parseInt(this.user.id) === parseInt(res.lien.owner_id);
+                this.modeVisiteur = !estProprietaire;
                 const titre = document.getElementById('titre-album-detail');
                 if (titre) titre.textContent = res.lien.title;
                 const desc = document.getElementById('description-album-detail');
