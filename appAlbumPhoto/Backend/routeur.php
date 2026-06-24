@@ -63,8 +63,17 @@ switch ($route) {
     case 'search':
         $searchController->chercher();
         break;
+    case 'search/photos':
+        $searchController->rechercherPhotos();
+        break;
     case 'share':
         $shareController->partager();
+        break;
+    case 'share/link':
+        $shareController->genererLien();
+        break;
+    case 'share/resolve':
+        $shareController->resoudreLien();
         break;
     case 'share/partages':
         $shareController->albumsPartagesAvecMoi();

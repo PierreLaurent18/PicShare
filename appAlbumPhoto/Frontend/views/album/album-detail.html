@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PicShare - Contenu de l'album</title>
-    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/style.css?v=2">
 </head>
 <body>
 
@@ -67,7 +67,7 @@
 
                 <div class="groupe-champ">
                     <label for="fichier-image">Sélectionner une image</label>
-                    <input type="file" id="fichier-image" name="image" accept="image/*" required style="padding: 0.5rem 0;">
+                    <input type="file" id="fichier-image" name="image" accept="image/jpeg,image/png" required style="padding: 0.5rem 0;">
                 </div>
 
                 <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
@@ -80,31 +80,36 @@
 
     <!-- Modal Partage -->
     <div id="modal-partage" class="boite-modale" style="display:none;">
-        <div class="contenu-modale" style="max-width:420px;">
+        <div class="contenu-modale" style="max-width:460px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
                 <h3>Partager cet album</h3>
                 <button id="fermer-modal-partage" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
             </div>
             <form id="form-partage">
-                <div class="groupe-champ" style="position:relative;">
-                    <label>Nom d'utilisateur</label>
-                    <input type="text" id="input-username-partage" name="username" placeholder="Commencez à taper..." required autocomplete="off"
-                        style="width:100%;padding:0.75rem;border:1px solid #cbd5e1;border-radius:var(--arrondi-sm);">
-                    <ul id="suggestions-utilisateurs" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:10;list-style:none;margin:0.25rem 0 0;padding:0;background:#fff;border:1px solid #cbd5e1;border-radius:var(--arrondi-sm);box-shadow:var(--ombre-md);max-height:200px;overflow-y:auto;"></ul>
-                </div>
+                <p style="font-size:0.9rem;color:var(--texte-attenue);margin-bottom:1rem;">
+                    Générez un lien à partager. Toute personne disposant du lien pourra accéder à l'album selon les droits choisis.
+                </p>
                 <div class="groupe-champ">
                     <label>Droits d'accès</label>
-                    <select name="rights" style="width:100%;padding:0.75rem;border:1px solid #cbd5e1;border-radius:var(--arrondi-sm);">
+                    <select id="rights-lien" name="rights" style="width:100%;padding:0.75rem;border:1px solid #cbd5e1;border-radius:var(--arrondi-sm);">
                         <option value="view">Lecture seule</option>
-                        <option value="comment">Lecture + Commentaires</option>
-                        <option value="contribute">Lecture + Commentaires + Photos</option>
+                        <option value="contribute">Lecture + ajout de photos</option>
                     </select>
                 </div>
                 <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:1rem;">
-                    <button type="button" id="annuler-modal-partage" class="bouton-secondaire">Annuler</button>
-                    <button type="submit" class="bouton-principal">Partager</button>
+                    <button type="button" id="annuler-modal-partage" class="bouton-secondaire">Fermer</button>
+                    <button type="submit" class="bouton-principal">🔗 Générer le lien</button>
                 </div>
             </form>
+
+            <div id="resultat-lien" style="display:none;margin-top:1.25rem;padding-top:1rem;border-top:1px solid #e2e8f0;">
+                <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:0.4rem;">Lien de partage</label>
+                <div style="display:flex;gap:0.5rem;">
+                    <input type="text" id="champ-lien" readonly
+                        style="flex:1;padding:0.6rem;border:1px solid #cbd5e1;border-radius:var(--arrondi-sm);font-size:0.8rem;background:#f8fafc;">
+                    <button type="button" id="copier-lien" class="bouton-secondaire" style="padding:0.6rem 0.9rem;">📋 Copier</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -156,10 +161,10 @@
         </div>
     </div>
 
-    <script src="../../assets/js/PhotoService.js?v=3"></script>
-    <script src="../../assets/js/CommentService.js?v=3"></script>
-    <script src="../../assets/js/ShareService.js?v=3"></script>
-    <script src="../../assets/js/PhotoController.js?v=3"></script>
+    <script src="../../assets/js/PhotoService.js?v=5"></script>
+    <script src="../../assets/js/CommentService.js?v=5"></script>
+    <script src="../../assets/js/ShareService.js?v=5"></script>
+    <script src="../../assets/js/PhotoController.js?v=5"></script>
     <script>
         // Formulaire commentaire dans le lightbox
         document.getElementById('form-lightbox-commentaire').addEventListener('submit', async (e) => {

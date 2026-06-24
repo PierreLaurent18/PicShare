@@ -9,12 +9,32 @@ class PhotoController {
     }
 
     init() {
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const session = localStorage.getItem('user');
             if (session) this.user = JSON.parse(session);
 
             const parametres = new URLSearchParams(window.location.search);
             this.albumId = parametres.get('id');
+            const token  = parametres.get('token');
+            this.modeVisiteur = false;
+            this.droitLien = null;
+
+            // Accès via lien de partage
+            if (token) {
+                const res = await this.shareService.resoudreLien(token);
+                if (!res.succes) {
+                    alert(res.message || "Lien invalide.");
+                    window.location.href = '../../index.html';
+                    return;
+                }
+                this.albumId = res.lien.album_id;
+                this.droitLien = res.lien.right_level;
+                this.modeVisiteur = true;
+                const titre = document.getElementById('titre-album-detail');
+                if (titre) titre.textContent = res.lien.title;
+                const desc = document.getElementById('description-album-detail');
+                if (desc) desc.textContent = res.lien.description || '';
+            }
 
             if (!this.albumId) {
                 alert("Album introuvable.");
@@ -37,8 +57,8 @@ class PhotoController {
             document.getElementById('bouton-partager').addEventListener('click', () => modalPartage.style.display = 'flex');
             document.getElementById('fermer-modal-partage').addEventListener('click', () => modalPartage.style.display = 'none');
             document.getElementById('annuler-modal-partage').addEventListener('click', () => modalPartage.style.display = 'none');
-            document.getElementById('form-partage').addEventListener('submit', (e) => this.gererPartage(e));
-            this.initAutocompletion();
+            document.getElementById('form-partage').addEventListener('submit', (e) => this.gererGenererLien(e));
+            document.getElementById('copier-lien').addEventListener('click', () => this.copierLien());
 
             this.lightbox = document.getElementById('lightbox');
             document.getElementById('lightbox-fermer').addEventListener('click', () => this.fermerLightbox());
@@ -47,6 +67,13 @@ class PhotoController {
             document.getElementById('lightbox-modifier').addEventListener('click', () => this.ouvrirEditionPhoto());
             document.getElementById('edit-annuler').addEventListener('click', () => this.fermerEditionPhoto());
             document.getElementById('form-modifier-photo').addEventListener('submit', (e) => this.gererModificationPhoto(e));
+
+            // En mode visiteur (accès par lien) : masquer les actions du propriétaire
+            if (this.modeVisiteur) {
+                document.getElementById('bouton-partager').style.display = 'none';
+                const droitsContribution = this.droitLien === 'contribute';
+                document.getElementById('bouton-ouvrir-modal-photo').style.display = droitsContribution ? '' : 'none';
+            }
 
             this.recupererEtAfficherPhotos();
         });
@@ -90,6 +117,15 @@ class PhotoController {
         document.getElementById('lightbox-image').src = urlImage;
         document.getElementById('lightbox-titre').textContent = photo.description || 'Sans titre';
         document.getElementById('lightbox-photo-id').value = photo.id;
+
+        // Actions propriétaire masquées en mode visiteur (accès par lien)
+        const peutEditer = !this.modeVisiteur;
+        document.getElementById('lightbox-modifier').style.display  = peutEditer ? 'block' : 'none';
+        document.getElementById('lightbox-supprimer').style.display = peutEditer ? 'block' : 'none';
+
+        // Commentaires : autorisés à tout utilisateur connecté, sans condition de droits
+        const peutCommenter = !!this.user;
+        document.getElementById('form-lightbox-commentaire').style.display = peutCommenter ? 'flex' : 'none';
 
         const zoneDate = document.getElementById('lightbox-date');
         if (photo.taken_at) {
@@ -136,42 +172,6 @@ class PhotoController {
             zone.innerHTML = '<p style="color:#94a3b8;font-size:0.85rem;">Aucun commentaire pour le moment.</p>';
         }
         zone.scrollTop = zone.scrollHeight;
-    }
-
-    initAutocompletion() {
-        const input  = document.getElementById('input-username-partage');
-        const liste  = document.getElementById('suggestions-utilisateurs');
-        let timer = null;
-
-        const fermer = () => { liste.style.display = 'none'; liste.innerHTML = ''; };
-
-        input.addEventListener('input', () => {
-            const q = input.value.trim();
-            clearTimeout(timer);
-            if (q.length < 1) { fermer(); return; }
-
-            timer = setTimeout(async () => {
-                const res = await this.shareService.chercherUtilisateurs(q, this.user.id);
-                if (!res.succes || res.utilisateurs.length === 0) { fermer(); return; }
-
-                liste.innerHTML = '';
-                res.utilisateurs.forEach(u => {
-                    const li = document.createElement('li');
-                    li.textContent = u.username;
-                    li.style.cssText = 'padding:0.6rem 0.75rem;cursor:pointer;font-size:0.9rem;';
-                    li.addEventListener('mouseenter', () => li.style.background = '#f1f5f9');
-                    li.addEventListener('mouseleave', () => li.style.background = '#fff');
-                    li.addEventListener('click', () => { input.value = u.username; fermer(); });
-                    liste.appendChild(li);
-                });
-                liste.style.display = 'block';
-            }, 200);
-        });
-
-        // Fermer la liste si on clique ailleurs
-        document.addEventListener('click', (e) => {
-            if (e.target !== input && !liste.contains(e.target)) fermer();
-        });
     }
 
     async gererSuppression() {
@@ -224,18 +224,32 @@ class PhotoController {
         }
     }
 
-    async gererPartage(e) {
+    async gererGenererLien(e) {
         e.preventDefault();
+        if (!this.user) { alert("Vous devez être connecté."); return; }
+
         const formData = new FormData(e.target);
         formData.append('album_id', this.albumId);
         formData.append('owner_id', this.user.id);
 
-        const resultat = await this.shareService.partager(formData);
-        alert(resultat.message);
+        const resultat = await this.shareService.genererLien(formData);
         if (resultat.succes) {
-            document.getElementById('modal-partage').style.display = 'none';
-            e.target.reset();
+            document.getElementById('champ-lien').value = resultat.url;
+            document.getElementById('resultat-lien').style.display = 'block';
+        } else {
+            alert(resultat.message || "Impossible de générer le lien.");
         }
+    }
+
+    copierLien() {
+        const champ = document.getElementById('champ-lien');
+        champ.select();
+        navigator.clipboard.writeText(champ.value).then(() => {
+            const btn = document.getElementById('copier-lien');
+            const ancien = btn.textContent;
+            btn.textContent = '✅ Copié';
+            setTimeout(() => { btn.textContent = ancien; }, 1500);
+        });
     }
 
     async gererDepotPhoto(evenement) {

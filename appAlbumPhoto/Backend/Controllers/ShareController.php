@@ -100,6 +100,65 @@ class ShareController {
         echo json_encode(["succes" => true, "albums" => $albums]);
     }
 
+    public function genererLien() {
+        $albumId = isset($_POST['album_id']) ? intval($_POST['album_id']) : 0;
+        $ownerId = isset($_POST['owner_id']) ? intval($_POST['owner_id']) : 0;
+        $droits  = isset($_POST['rights'])   ? trim($_POST['rights'])     : 'view';
+
+        if (!$albumId || !$ownerId) {
+            http_response_code(400);
+            echo json_encode(["succes" => false, "message" => "Données manquantes."]);
+            return;
+        }
+
+        $check = $this->bdd->prepare("SELECT id FROM albums WHERE id = :id AND user_id = :user_id");
+        $check->execute(['id' => $albumId, 'user_id' => $ownerId]);
+        if (!$check->fetch()) {
+            http_response_code(403);
+            echo json_encode(["succes" => false, "message" => "Accès refusé."]);
+            return;
+        }
+
+        $token = bin2hex(random_bytes(16));
+        $this->bdd->prepare(
+            "INSERT INTO share_links (token, album_id, right_level) VALUES (:token, :album_id, :rights)"
+        )->execute(['token' => $token, 'album_id' => $albumId, 'rights' => $droits]);
+
+        $base = $_ENV['APP_URL'] ?? '';
+        $url  = $base . '/Frontend/views/album/album-detail.html?token=' . $token;
+
+        Db::logAction("Lien de partage généré pour l'album $albumId (droits: $droits)");
+        echo json_encode(["succes" => true, "url" => $url, "token" => $token]);
+    }
+
+    public function resoudreLien() {
+        $token = isset($_GET['token']) ? trim($_GET['token']) : '';
+
+        if ($token === '') {
+            http_response_code(400);
+            echo json_encode(["succes" => false, "message" => "Lien invalide."]);
+            return;
+        }
+
+        $stmt = $this->bdd->prepare(
+            "SELECT share_links.album_id, share_links.right_level,
+                    albums.title, albums.description
+             FROM share_links
+             JOIN albums ON share_links.album_id = albums.id
+             WHERE share_links.token = :token"
+        );
+        $stmt->execute(['token' => $token]);
+        $lien = $stmt->fetch();
+
+        if (!$lien) {
+            http_response_code(404);
+            echo json_encode(["succes" => false, "message" => "Lien introuvable ou expiré."]);
+            return;
+        }
+
+        echo json_encode(["succes" => true, "lien" => $lien]);
+    }
+
     public function chercherUtilisateurs() {
         $q       = isset($_GET['q'])       ? trim($_GET['q'])         : '';
         $exclure = isset($_GET['exclure']) ? intval($_GET['exclure']) : 0;

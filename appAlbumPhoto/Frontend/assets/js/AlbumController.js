@@ -43,66 +43,66 @@ class AlbumController {
             if (formRecherche) formRecherche.addEventListener('submit', (e) => this.gererRecherche(e));
             if (btnEffacer) btnEffacer.addEventListener('click', () => this.effacerRecherche());
 
+            this.initOnglets();
             this.chargerAlbumsPrives();
+        });
+    }
+
+    initOnglets() {
+        const onglets = document.querySelectorAll('#onglets-albums .onglet');
+        onglets.forEach(onglet => {
+            onglet.addEventListener('click', () => {
+                onglets.forEach(o => o.classList.remove('actif'));
+                onglet.classList.add('actif');
+
+                document.querySelectorAll('.panneau-onglet').forEach(p => p.style.display = 'none');
+                document.getElementById(onglet.dataset.cible).style.display = 'block';
+            });
         });
     }
 
     async gererRecherche(e) {
         e.preventDefault();
-        const q = document.getElementById('input-recherche').value.trim();
-        if (q.length < 2) { alert("Entrez au moins 2 caractères."); return; }
 
-        const resultat = await this.searchService.chercher(q, this.user.id);
+        const criteres = {
+            q:     document.getElementById('critere-q').value.trim(),
+            tag:   document.getElementById('critere-tag').value.trim(),
+            album: document.getElementById('critere-album').value.trim(),
+            date:  document.getElementById('critere-date').value
+        };
 
-        const sectionResultats = document.getElementById('section-resultats');
-        const sectionAlbums    = document.getElementById('section-albums');
-        const titreResultats   = document.getElementById('titre-resultats');
-        const divAlbums        = document.getElementById('resultats-albums');
-        const divPhotos        = document.getElementById('resultats-photos');
-        const msgAucun         = document.getElementById('message-aucun-resultat');
-        const btnEffacer       = document.getElementById('btn-effacer-recherche');
-
-        sectionResultats.style.display = 'block';
-        sectionAlbums.style.display    = 'none';
-        btnEffacer.style.display       = 'inline-block';
-        titreResultats.textContent     = `Résultats pour "${q}"`;
-        divAlbums.innerHTML = '';
-        divPhotos.innerHTML = '';
-
-        const aucunResultat = resultat.albums.length === 0 && resultat.photos.length === 0;
-        msgAucun.style.display = aucunResultat ? 'block' : 'none';
-
-        if (resultat.albums.length > 0) {
-            divAlbums.innerHTML = `<h4 style="margin-bottom:0.75rem;color:#475569;">📁 Albums (${resultat.albums.length})</h4>`;
-            const grille = document.createElement('div');
-            grille.className = 'grille-fonctionnalites';
-            resultat.albums.forEach(album => {
-                const carte = document.createElement('div');
-                carte.className = 'carte-fonctionnalite';
-                carte.innerHTML = `
-                    <div style="font-size:2.5rem;margin-bottom:0.75rem;">📁</div>
-                    <h3>${album.title}</h3>
-                    <p style="font-size:0.85rem;color:var(--texte-attenue);margin-bottom:1rem;">${album.description || ''}</p>
-                    <a href="http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/album/album-detail.html?id=${album.id}"
-                       class="bouton-principal" style="display:block;text-align:center;">Ouvrir →</a>
-                `;
-                grille.appendChild(carte);
-            });
-            divAlbums.appendChild(grille);
+        if (!criteres.q && !criteres.tag && !criteres.album && !criteres.date) {
+            alert("Renseignez au moins un critère.");
+            return;
         }
 
-        if (resultat.photos.length > 0) {
-            divPhotos.innerHTML = `<h4 style="margin-bottom:0.75rem;color:#475569;">🖼️ Photos (${resultat.photos.length})</h4>`;
+        const resultat = await this.searchService.rechercherPhotos(this.user.id, criteres);
+
+        const sectionResultats = document.getElementById('section-resultats');
+        const zoneAlbums       = document.getElementById('zone-albums');
+        const titreResultats   = document.getElementById('titre-resultats');
+        const divPhotos        = document.getElementById('resultats-photos');
+        const msgAucun         = document.getElementById('message-aucun-resultat');
+
+        sectionResultats.style.display = 'block';
+        zoneAlbums.style.display       = 'none';
+        divPhotos.innerHTML = '';
+
+        const photos = resultat.photos || [];
+        titreResultats.textContent = `${photos.length} photo(s) trouvée(s)`;
+        msgAucun.style.display = photos.length === 0 ? 'block' : 'none';
+
+        if (photos.length > 0) {
             const grille = document.createElement('div');
             grille.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;';
-            resultat.photos.forEach(photo => {
+            photos.forEach(photo => {
                 const urlImage = `http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Backend/uploads/${photo.filename}`;
                 const carte = document.createElement('div');
-                carte.style.cssText = 'border-radius:8px;overflow:hidden;background:#f1f5f9;cursor:pointer;';
+                carte.style.cssText = 'border:1px solid var(--bordure);border-radius:var(--arrondi-md);overflow:hidden;cursor:pointer;';
                 const tagsHtml = photo.etiquettes
                     ? '<div style="margin-top:0.35rem;display:flex;flex-wrap:wrap;gap:0.25rem;">' +
                         photo.etiquettes.split(',').map(t =>
-                            `<span style="font-size:0.7rem;background:#eff6ff;color:#3b82f6;padding:0.1rem 0.45rem;border-radius:99px;">#${t}</span>`
+                            `<span style="font-size:0.7rem;background:#f4f4f5;color:var(--texte-attenue);padding:0.1rem 0.45rem;border-radius:99px;">#${t}</span>`
                         ).join('') +
                       '</div>'
                     : '';
@@ -133,15 +133,18 @@ class AlbumController {
                 grille.innerHTML = '';
                 res.albums.forEach(album => {
                     const carte = document.createElement('div');
-                    carte.className = 'carte-fonctionnalite';
+                    carte.className = 'carte-album';
                     const badge = { view: '👁️ Lecture', comment: '💬 Commentaires', contribute: '✏️ Contribution' }[album.right_level] || album.right_level;
                     carte.innerHTML = `
-                        <div style="font-size:2.5rem;margin-bottom:0.75rem;">📁</div>
-                        <h3>${album.title}</h3>
-                        <p style="font-size:0.8rem;color:var(--texte-attenue);margin-bottom:0.5rem;">Par <b>${album.owner_username}</b></p>
-                        <span style="font-size:0.75rem;background:#eff6ff;color:#3b82f6;padding:0.2rem 0.6rem;border-radius:99px;">${badge}</span>
-                        <a href="http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/album/album-detail.html?id=${album.id}"
-                           class="bouton-principal" style="display:block;text-align:center;margin-top:1rem;">Ouvrir →</a>
+                        <div class="carte-album-haut">
+                            <div class="carte-album-icone">📁</div>
+                            <span class="badge-visibilite">${badge}</span>
+                        </div>
+                        <h3 class="carte-album-titre">${album.title}</h3>
+                        <p class="carte-album-desc">Par ${album.owner_username}</p>
+                        <div class="carte-album-actions">
+                            <a href="http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/album/album-detail.html?id=${album.id}" class="lien-ouvrir">Ouvrir</a>
+                        </div>
                     `;
                     grille.appendChild(carte);
                 });
@@ -159,14 +162,17 @@ class AlbumController {
                 grille.innerHTML = '';
                 res.albums.forEach(album => {
                     const carte = document.createElement('div');
-                    carte.className = 'carte-fonctionnalite';
+                    carte.className = 'carte-album';
                     carte.innerHTML = `
-                        <div style="font-size:2.5rem;margin-bottom:0.75rem;">🌍</div>
-                        <h3>${album.title}</h3>
-                        <p style="font-size:0.85rem;color:var(--texte-attenue);margin-bottom:1rem;">${album.description || ''}</p>
-                        <p style="font-size:0.8rem;color:var(--texte-attenue);margin-bottom:1rem;">Par <b>${album.owner_username}</b></p>
-                        <a href="http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/album/album-detail.html?id=${album.id}"
-                           class="bouton-secondaire" style="display:block;text-align:center;">Voir →</a>
+                        <div class="carte-album-haut">
+                            <div class="carte-album-icone">🌍</div>
+                            <span class="badge-visibilite">Public</span>
+                        </div>
+                        <h3 class="carte-album-titre">${album.title}</h3>
+                        <p class="carte-album-desc">Par ${album.owner_username}</p>
+                        <div class="carte-album-actions">
+                            <a href="http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/album/album-detail.html?id=${album.id}" class="lien-ouvrir">Voir</a>
+                        </div>
                     `;
                     grille.appendChild(carte);
                 });
@@ -175,10 +181,16 @@ class AlbumController {
     }
 
     effacerRecherche() {
-        document.getElementById('input-recherche').value = '';
+        document.getElementById('critere-q').value     = '';
+        document.getElementById('critere-tag').value   = '';
+        document.getElementById('critere-album').value = '';
+        document.getElementById('critere-date').value  = '';
         document.getElementById('section-resultats').style.display = 'none';
-        document.getElementById('section-albums').style.display    = 'block';
-        document.getElementById('btn-effacer-recherche').style.display = 'none';
+        document.getElementById('zone-albums').style.display        = 'block';
+    }
+
+    libelleVisibilite(v) {
+        return { private: '🔒 Privé', public: '🌍 Public', restricted: '👥 Restreint' }[v] || v;
     }
 
     async chargerAlbumsPrives() {
@@ -192,15 +204,17 @@ class AlbumController {
                 grille.innerHTML = '';
                 resultat.albums.forEach(album => {
                     const carte = document.createElement('div');
-                    carte.className = 'carte-fonctionnalite';
+                    carte.className = 'carte-album';
                     carte.innerHTML = `
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
-                        <h3>${album.title}</h3>
-                        <p style="font-size: 0.9rem; color: var(--texte-attenue); margin-bottom: 1rem;">
-                            Statut : <b>${album.visibility}</b>
-                        </p>
-                        <a href="http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/album/album-detail.html?id=${album.id}" class="bouton-principal" style="display:block; text-align:center;">Ouvrir →</a>
-                        <button class="bouton-secondaire btn-modifier-album" style="display:block;width:100%;margin-top:0.5rem;">✏️ Modifier</button>
+                        <div class="carte-album-haut">
+                            <div class="carte-album-icone">📁</div>
+                            <span class="badge-visibilite">${this.libelleVisibilite(album.visibility)}</span>
+                        </div>
+                        <h3 class="carte-album-titre">${album.title}</h3>
+                        <div class="carte-album-actions">
+                            <a href="http://localhost:81/AlbumPhotoFinalProject/appAlbumPhoto/Frontend/views/album/album-detail.html?id=${album.id}" class="lien-ouvrir">Ouvrir</a>
+                            <button class="btn-icone btn-modifier-album">✏️ Modifier</button>
+                        </div>
                     `;
                     carte.querySelector('.btn-modifier-album').addEventListener('click', () => this.ouvrirModalEdition(album));
                     grille.appendChild(carte);
@@ -219,9 +233,8 @@ class AlbumController {
 
     ouvrirModalEdition(album) {
         this.albumEnEdition = album.id;
-        document.getElementById('titre-album').value       = album.title;
-        document.getElementById('description-album').value = album.description || '';
-        document.getElementById('visibilite-album').value  = album.visibility;
+        document.getElementById('titre-album').value      = album.title;
+        document.getElementById('visibilite-album').value = album.visibility;
         document.getElementById('titre-modal-album').textContent = "Modifier l'album";
         document.getElementById('bouton-soumettre-album').textContent = "Enregistrer";
         document.getElementById('modal-album').style.display = 'flex';

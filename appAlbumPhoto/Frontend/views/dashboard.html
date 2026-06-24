@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PicShare - Mon Espace</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css?v=2">
 </head>
 <body>
 
@@ -22,66 +22,81 @@
 
     <main class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
 
-        <!-- Barre de recherche -->
-        <section style="margin-bottom: 2rem;">
-            <form id="form-recherche" style="display:flex;gap:0.5rem;max-width:500px;">
-                <input type="text" id="input-recherche" placeholder="Rechercher un album, une photo ou une étiquette..."
-                    style="flex:1;padding:0.75rem 1rem;border:1px solid #cbd5e1;border-radius:var(--arrondi-sm);font-size:0.95rem;">
-                <button type="submit" class="bouton-principal" style="padding:0.75rem 1.25rem;">🔍 Chercher</button>
-                <button type="button" id="btn-effacer-recherche" class="bouton-secondaire" style="display:none;padding:0.75rem 1rem;">✕</button>
+        <!-- Recherche de photos par critères -->
+        <section style="margin-bottom:2rem;background:var(--fond-carte);border:1px solid var(--bordure);border-radius:var(--arrondi-md);padding:1.25rem;">
+            <form id="form-recherche">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;align-items:end;">
+                    <div class="groupe-champ" style="margin:0;">
+                        <label for="critere-q">Mot-clé</label>
+                        <input type="text" id="critere-q" placeholder="Légende de la photo">
+                    </div>
+                    <div class="groupe-champ" style="margin:0;">
+                        <label for="critere-tag">Étiquette</label>
+                        <input type="text" id="critere-tag" placeholder="Ex: plage">
+                    </div>
+                    <div class="groupe-champ" style="margin:0;">
+                        <label for="critere-album">Album</label>
+                        <input type="text" id="critere-album" placeholder="Nom de l'album">
+                    </div>
+                    <div class="groupe-champ" style="margin:0;">
+                        <label for="critere-date">Date de prise</label>
+                        <input type="date" id="critere-date">
+                    </div>
+                    <div style="display:flex;gap:0.5rem;">
+                        <button type="submit" class="bouton-principal" style="flex:1;">🔍 Chercher</button>
+                        <button type="button" id="btn-effacer-recherche" class="bouton-secondaire">Effacer</button>
+                    </div>
+                </div>
             </form>
         </section>
 
         <!-- Résultats de recherche -->
         <section id="section-resultats" style="display:none;margin-bottom:2rem;">
             <h3 id="titre-resultats" style="margin-bottom:1rem;color:#1e293b;"></h3>
-
-            <div id="resultats-albums" style="margin-bottom:1.5rem;"></div>
-            <div id="resultats-photos" style="margin-bottom:1.5rem;"></div>
-
+            <div id="resultats-photos"></div>
             <p id="message-aucun-resultat" style="display:none;color:var(--texte-attenue);text-align:center;padding:2rem 0;">
-                Aucun résultat trouvé.
+                Aucune photo trouvée.
             </p>
         </section>
 
-        <!-- Mes albums -->
-        <section id="section-albums">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-                <div>
-                    <h2>Mes Albums</h2>
-                    <p style="color: var(--texte-attenue);">Gérez vos collections de photos privées et publiques.</p>
-                </div>
+        <!-- Onglets des albums -->
+        <div id="zone-albums">
+            <div class="barre-onglets">
+                <nav class="onglets" id="onglets-albums">
+                    <button class="onglet actif" data-cible="section-albums">Mes albums</button>
+                    <button class="onglet" data-cible="section-partages">Partagés avec moi</button>
+                    <button class="onglet" data-cible="section-publics">Publics</button>
+                </nav>
                 <button id="bouton-ouvrir-modal" class="bouton-principal">+ Créer un album</button>
             </div>
 
-            <div id="grille-albums" class="grille-fonctionnalites">
-                <p id="message-vide" style="grid-column: 1/-1; text-align: center; color: var(--texte-attenue); padding: 3rem 0;">
-                    Vous n'avez pas encore créé d'album. Cliquez sur le bouton ci-dessus pour commencer !
-                </p>
-            </div>
-        </section>
+            <!-- Mes albums -->
+            <section id="section-albums" class="panneau-onglet">
+                <div id="grille-albums" class="grille-albums">
+                    <p id="message-vide" style="grid-column: 1/-1; text-align: center; color: var(--texte-attenue); padding: 3rem 0;">
+                        Vous n'avez pas encore créé d'album. Cliquez sur « Créer un album » pour commencer !
+                    </p>
+                </div>
+            </section>
 
-        <!-- Albums partagés avec moi -->
-        <section id="section-partages" style="margin-top:3rem;">
-            <h2 style="margin-bottom:0.5rem;">Partagés avec moi</h2>
-            <p style="color:var(--texte-attenue);margin-bottom:1.5rem;">Albums que d'autres utilisateurs ont partagés avec vous.</p>
-            <div id="grille-partages" class="grille-fonctionnalites">
-                <p id="message-partages-vide" style="grid-column:1/-1;text-align:center;color:var(--texte-attenue);padding:2rem 0;">
-                    Aucun album partagé avec vous pour le moment.
-                </p>
-            </div>
-        </section>
+            <!-- Albums partagés avec moi -->
+            <section id="section-partages" class="panneau-onglet" style="display:none;">
+                <div id="grille-partages" class="grille-albums">
+                    <p id="message-partages-vide" style="grid-column:1/-1;text-align:center;color:var(--texte-attenue);padding:2rem 0;">
+                        Aucun album partagé avec vous pour le moment.
+                    </p>
+                </div>
+            </section>
 
-        <!-- Albums publics -->
-        <section id="section-publics" style="margin-top:3rem;">
-            <h2 style="margin-bottom:0.5rem;">Albums publics</h2>
-            <p style="color:var(--texte-attenue);margin-bottom:1.5rem;">Albums publics des autres utilisateurs.</p>
-            <div id="grille-publics" class="grille-fonctionnalites">
-                <p id="message-publics-vide" style="grid-column:1/-1;text-align:center;color:var(--texte-attenue);padding:2rem 0;">
-                    Aucun album public disponible.
-                </p>
-            </div>
-        </section>
+            <!-- Albums publics -->
+            <section id="section-publics" class="panneau-onglet" style="display:none;">
+                <div id="grille-publics" class="grille-albums">
+                    <p id="message-publics-vide" style="grid-column:1/-1;text-align:center;color:var(--texte-attenue);padding:2rem 0;">
+                        Aucun album public disponible.
+                    </p>
+                </div>
+            </section>
+        </div>
 
     </main>
 
@@ -98,10 +113,6 @@
                     <input type="text" id="titre-album" name="title" placeholder="Ex: Vacances d'été 2026" required>
                 </div>
                 <div class="groupe-champ">
-                    <label for="description-album">Description (Optionnelle)</label>
-                    <input type="text" id="description-album" name="description" placeholder="Ex: Nos souvenirs à la plage">
-                </div>
-                <div class="groupe-champ">
                     <label for="visibilite-album">Visibilité</label>
                     <select id="visibilite-album" name="visibility" style="padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: var(--arrondi-sm);">
                         <option value="private">Privé (Moi uniquement)</option>
@@ -116,9 +127,9 @@
         </div>
     </div>
 
-    <script src="../assets/js/AlbumService.js?v=3"></script>
-    <script src="../assets/js/SearchService.js?v=3"></script>
-    <script src="../assets/js/ShareService.js?v=3"></script>
-    <script src="../assets/js/AlbumController.js?v=3"></script>
+    <script src="../assets/js/AlbumService.js?v=8"></script>
+    <script src="../assets/js/SearchService.js?v=8"></script>
+    <script src="../assets/js/ShareService.js?v=8"></script>
+    <script src="../assets/js/AlbumController.js?v=8"></script>
 </body>
 </html>

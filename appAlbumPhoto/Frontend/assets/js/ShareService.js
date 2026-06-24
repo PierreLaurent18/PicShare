@@ -18,6 +18,16 @@ class ShareService {
         return await r.json();
     }
 
+    async genererLien(formData) {
+        const r = await fetch(`${this.apiUrl}?route=share/link`, { method: 'POST', body: formData });
+        return await r.json();
+    }
+
+    async resoudreLien(token) {
+        const r = await fetch(`${this.apiUrl}?route=share/resolve&token=${encodeURIComponent(token)}`);
+        return await r.json();
+    }
+
     async chercherUtilisateurs(q, exclure) {
         const r = await fetch(`${this.apiUrl}?route=users/search&q=${encodeURIComponent(q)}&exclure=${exclure}`);
         return await r.json();

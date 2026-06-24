@@ -33,20 +33,20 @@ class PhotoController {
             return;
         }
 
-        $extensionsAutorisees = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $extensionsAutorisees = ['jpg', 'jpeg', 'png'];
         $extensionFichier = strtolower(pathinfo($fichier['name'], PATHINFO_EXTENSION));
 
         if (!in_array($extensionFichier, $extensionsAutorisees)) {
             http_response_code(400);
-            echo json_encode(["message" => "Format de fichier non autorisé (uniquement JPG, PNG, GIF, WEBP)."]);
+            echo json_encode(["message" => "Format non autorisé (uniquement JPG ou PNG)."]);
             return;
         }
 
         $infosImage = @getimagesize($fichier['tmp_name']);
-        $typesMimeAutorises = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $typesMimeAutorises = ['image/jpeg', 'image/png'];
         if ($infosImage === false || !in_array($infosImage['mime'], $typesMimeAutorises)) {
             http_response_code(400);
-            echo json_encode(["message" => "Le fichier n'est pas une image valide."]);
+            echo json_encode(["message" => "Le fichier n'est pas une image valide (JPG ou PNG)."]);
             return;
         }
 

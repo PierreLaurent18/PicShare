@@ -73,6 +73,14 @@ CREATE TABLE album_shares (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+CREATE TABLE share_links (
+    token VARCHAR(64) PRIMARY KEY,
+    album_id INT NOT NULL,
+    right_level ENUM('view', 'comment', 'contribute') DEFAULT 'view',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 CREATE INDEX idx_albums_user ON albums(user_id);
 CREATE INDEX idx_photos_album ON photos(album_id);
 CREATE INDEX idx_comments_photo ON comments(photo_id);

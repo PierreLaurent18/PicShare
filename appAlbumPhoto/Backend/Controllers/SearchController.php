@@ -56,4 +56,58 @@ class SearchController {
             "photos" => $photos
         ]);
     }
+
+    public function rechercherPhotos() {
+        $userId = isset($_GET['user_id']) ? intval($_GET['user_id']) : 0;
+        $motCle = isset($_GET['q'])       ? trim($_GET['q'])         : '';
+        $tag    = isset($_GET['tag'])     ? trim($_GET['tag'])       : '';
+        $album  = isset($_GET['album'])   ? trim($_GET['album'])     : '';
+        $date   = isset($_GET['date'])    ? trim($_GET['date'])      : '';
+
+        if (!$userId) {
+            http_response_code(400);
+            echo json_encode(["succes" => false, "message" => "Utilisateur manquant."]);
+            return;
+        }
+
+        $conditions = ["albums.user_id = :user_id"];
+        $params = ['user_id' => $userId];
+
+        if ($motCle !== '') {
+            $conditions[] = "photos.description LIKE :motcle";
+            $params['motcle'] = '%' . $motCle . '%';
+        }
+        if ($album !== '') {
+            $conditions[] = "albums.title LIKE :album";
+            $params['album'] = '%' . $album . '%';
+        }
+        if ($date !== '') {
+            $conditions[] = "photos.taken_at = :date";
+            $params['date'] = $date;
+        }
+        if ($tag !== '') {
+            $conditions[] = "photos.id IN (
+                SELECT pt.photo_id FROM photo_tags pt
+                JOIN tags t ON pt.tag_id = t.id
+                WHERE t.name LIKE :tag
+            )";
+            $params['tag'] = '%' . $tag . '%';
+        }
+
+        $sql = "SELECT photos.id, photos.filename, photos.description, photos.album_id,
+                       albums.title AS album_title,
+                       GROUP_CONCAT(DISTINCT tags.name ORDER BY tags.name SEPARATOR ',') AS etiquettes
+                FROM photos
+                JOIN albums ON photos.album_id = albums.id
+                LEFT JOIN photo_tags ON photos.id = photo_tags.photo_id
+                LEFT JOIN tags ON photo_tags.tag_id = tags.id
+                WHERE " . implode(' AND ', $conditions) . "
+                GROUP BY photos.id
+                ORDER BY photos.uploaded_at DESC";
+
+        $stmt = $this->bdd->prepare($sql);
+        $stmt->execute($params);
+
+        echo json_encode(["succes" => true, "photos" => $stmt->fetchAll()]);
+    }
 }
