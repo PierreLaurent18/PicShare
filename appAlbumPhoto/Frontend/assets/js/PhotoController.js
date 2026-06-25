@@ -29,8 +29,9 @@ class PhotoController {
                 }
                 this.albumId = res.lien.album_id;
                 this.droitLien = res.lien.right_level;
+                this.albumOwnerId = parseInt(res.lien.owner_id);
                 // Si l'utilisateur connecté est le propriétaire, il garde le contrôle total
-                const estProprietaire = this.user && parseInt(this.user.id) === parseInt(res.lien.owner_id);
+                const estProprietaire = this.user && parseInt(this.user.id) === this.albumOwnerId;
                 this.modeVisiteur = !estProprietaire;
                 const titre = document.getElementById('titre-album-detail');
                 if (titre) titre.textContent = res.lien.title;
@@ -86,9 +87,25 @@ class PhotoController {
         if (!ouvrir) this.formulaire.reset();
     }
 
+    // Seul le propriétaire de l'album peut modifier ou supprimer ses photos
+    peutGerer() {
+        return !!this.user
+            && this.albumOwnerId != null
+            && parseInt(this.user.id) === parseInt(this.albumOwnerId);
+    }
+
     async recupererEtAfficherPhotos() {
         const resultat = await this.photoService.listerPhotos(this.albumId);
         const msgVide  = document.getElementById('message-photos-vide');
+
+        if (resultat.album_owner_id != null) this.albumOwnerId = resultat.album_owner_id;
+
+        // Accès direct (?id=) : réserver ajout et partage au propriétaire de l'album
+        if (!this.modeVisiteur) {
+            const proprietaire = this.peutGerer();
+            document.getElementById('bouton-ouvrir-modal-photo').style.display = proprietaire ? '' : 'none';
+            document.getElementById('bouton-partager').style.display            = proprietaire ? '' : 'none';
+        }
 
         if (resultat.succes && resultat.photos.length > 0) {
             if (msgVide) msgVide.style.display = 'none';
@@ -120,8 +137,8 @@ class PhotoController {
         document.getElementById('lightbox-titre').textContent = photo.description || 'Sans titre';
         document.getElementById('lightbox-photo-id').value = photo.id;
 
-        // Actions propriétaire masquées en mode visiteur (accès par lien)
-        const peutEditer = !this.modeVisiteur;
+        // Modifier / supprimer réservés au propriétaire de l'album
+        const peutEditer = this.peutGerer();
         document.getElementById('lightbox-modifier').style.display  = peutEditer ? 'block' : 'none';
         document.getElementById('lightbox-supprimer').style.display = peutEditer ? 'block' : 'none';
 

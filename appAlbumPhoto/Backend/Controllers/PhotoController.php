@@ -1,11 +1,14 @@
 <?php
 require_once __DIR__ . '/../models/Photo.php';
+require_once __DIR__ . '/../models/Album.php';
 
 class PhotoController {
     private $photoModel;
+    private $albumModel;
 
     public function __construct() {
         $this->photoModel = new Photo();
+        $this->albumModel = new Album();
     }
 
     public function ajouter() {
@@ -135,7 +138,12 @@ class PhotoController {
         }
 
         $photos = $this->photoModel->listerParAlbum($albumId);
+        $proprietaireId = $this->albumModel->recupererProprietaire($albumId);
         http_response_code(200);
-        echo json_encode(["succes" => true, "photos" => $photos]);
+        echo json_encode([
+            "succes"          => true,
+            "photos"          => $photos,
+            "album_owner_id"  => $proprietaireId
+        ]);
     }
 }

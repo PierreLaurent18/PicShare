@@ -20,6 +20,13 @@ class Album {
         ]);
     }
 
+    public function recupererProprietaire($albumId) {
+        $stmt = $this->bdd->prepare("SELECT user_id FROM albums WHERE id = :id");
+        $stmt->execute(['id' => $albumId]);
+        $proprietaire = $stmt->fetchColumn();
+        return $proprietaire === false ? null : intval($proprietaire);
+    }
+
     public function listerParUtilisateur($userId) {
         $query = "SELECT * FROM albums WHERE user_id = :user_id ORDER BY created_at DESC";
         $stmt = $this->bdd->prepare($query);
