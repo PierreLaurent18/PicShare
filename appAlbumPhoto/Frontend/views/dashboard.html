@@ -22,7 +22,6 @@
 
     <main class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
 
-        <!-- Recherche de photos par critères -->
         <section style="margin-bottom:2rem;background:var(--fond-carte);border:1px solid var(--bordure);border-radius:var(--arrondi-md);padding:1.25rem;">
             <form id="form-recherche">
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;align-items:end;">
@@ -50,7 +49,6 @@
             </form>
         </section>
 
-        <!-- Résultats de recherche -->
         <section id="section-resultats" style="display:none;margin-bottom:2rem;">
             <h3 id="titre-resultats" style="margin-bottom:1rem;color:#1e293b;"></h3>
             <div id="resultats-photos"></div>
@@ -59,7 +57,6 @@
             </p>
         </section>
 
-        <!-- Onglets des albums -->
         <div id="zone-albums">
             <div class="barre-onglets">
                 <nav class="onglets" id="onglets-albums">
@@ -70,7 +67,6 @@
                 <button id="bouton-ouvrir-modal" class="bouton-principal">+ Créer un album</button>
             </div>
 
-            <!-- Mes albums -->
             <section id="section-albums" class="panneau-onglet">
                 <div id="grille-albums" class="grille-albums">
                     <p id="message-vide" style="grid-column: 1/-1; text-align: center; color: var(--texte-attenue); padding: 3rem 0;">
@@ -79,7 +75,6 @@
                 </div>
             </section>
 
-            <!-- Albums partagés avec moi -->
             <section id="section-partages" class="panneau-onglet" style="display:none;">
                 <div id="grille-partages" class="grille-albums">
                     <p id="message-partages-vide" style="grid-column:1/-1;text-align:center;color:var(--texte-attenue);padding:2rem 0;">
@@ -88,7 +83,6 @@
                 </div>
             </section>
 
-            <!-- Albums publics -->
             <section id="section-publics" class="panneau-onglet" style="display:none;">
                 <div id="grille-publics" class="grille-albums">
                     <p id="message-publics-vide" style="grid-column:1/-1;text-align:center;color:var(--texte-attenue);padding:2rem 0;">
@@ -100,7 +94,6 @@
 
     </main>
 
-    <!-- Modal création album -->
     <div id="modal-album" class="boite-modale" style="display: none;">
         <div class="contenu-modale">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
